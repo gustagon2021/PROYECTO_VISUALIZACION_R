@@ -1,0 +1,135 @@
+---
+title: "Trabajo Práctico Integrador"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+knitr::opts_chunk$set(echo = TRUE)
+
+meteoritos <- readr::read_csv("https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2019/2019-06-11/meteorites.csv")
+
+```
+
+```{r meteoritos0, exercise = TRUE}
+meteoritos <- readr::read_csv("https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2019/2019-06-11/meteorites.csv")
+```
+
+La base de datos `meteoritos` contiene información de impactos de meteoritos y su fuente es la NASA. Incluye información sobre más de 45.000 meteoritos, incluyendo su nombre, ubicación, masa y año de impacto.
+
+### **Parte 1**
+
+**Pregunta:** ¿Cuál es la distribución geográfica de los meteoritos y donde cayeron los más pesados?
+
+**Introducción:** *La base de datos a utilizar a recabado informacion de diferentes meteriotos a lo largo de los años. En esencia se podrá determinar la distribucion geografica a partir de las columnas latitud longitud o bien a partir de la columna geolocalizacion.* *Naturalmente que para determinar donde han caido los meteoritos mas pesados nos ayudaremos de la columna mass.*
+
+**Enfoque:** *El grafico de barras se utiliza para mostrar la distribucion. Intuitivamente se puede apreciar que el continente mas afectado por los meteritos es Europa. Realizar una conclusion rapida nos permite concluir que el grafico que utilizamos es el indicado.* *De manera similar pasa con el grafico de puntos, el tamaño de los puntos determina su masa y los colores nos indican el continente. Sin pasar por el dataset podemos ver como America a recibido los meteoritos mas grandes*
+
+**Analisis:**
+
+```{r}
+# Inicializar contador de NA
+na_count <- 0
+
+# Función clasificar_continente con conteo de NA
+clasificar_continente <- function(lat, long) {
+  # Verificar si hay valores NA
+  if (is.na(lat) || is.na(long)) {
+    na_count <<- na_count + 1  # Incrementar contador global de NA
+    return(NA)
+  }
+  
+  # Clasificación por continente
+  if (lat >= -60 & lat <= 90 & long >= -170 & long <= -30) {
+    return("América")
+  } else if (lat >= -50 & lat <= 60 & long >= -10 & long <= 60) {
+    return("Europa")
+  } else if (lat >= -35 & lat <= 40 & long >= 20 & long <= 180) {
+    return("Asia")
+  } else if (lat >= -40 & lat <= -10 & long >= 110 & long <= 155) {
+    return("Oceanía")
+  } else if (lat >= -35 & lat <= -10 & long >= -20 & long <= 55) {
+    return("África")
+  } else {
+    na_count <<- na_count + 1  # Incrementar contador global de NA si no coincide
+    return(NA)
+  }
+}
+
+# Aplicar la función para crear la columna CONTINENTE
+meteoritos <- meteoritos %>%
+  mutate(CONTINENTE = mapply(clasificar_continente, lat, long))
+
+# Imprimir el número de NA
+na_count
+
+
+```
+
+```{r}
+   library(ggplot2)
+library(dplyr)
+
+# Filtramos los NA en CONTINENTE y graficamos la frecuencia
+meteoritos %>%
+  filter(!is.na(CONTINENTE)) %>%
+  ggplot(aes(x = CONTINENTE, fill = CONTINENTE)) +
+  geom_bar(alpha = 0.5) +  # Gráfico de barras
+  labs(
+    title = "Distribución de meteoritos por continente",
+    x = "Continente",
+    y = "Frecuencia"
+  ) +
+  geom_text(stat = 'count', aes(label = ..count..), 
+            position = position_stack(vjust = 0.5), 
+            color = "black", size = 5) +  # Agregamos texto con la cantidad
+  scale_y_continuous(breaks = seq(0, max(table(meteoritos$CONTINENTE, useNA = "no")), by = 1000)) +
+  theme_minimal()  # Opcional: Cambiar el tema para una mejor apariencia
+
+
+
+```
+
+```{r}
+   library(ggplot2)
+library(dplyr)
+
+# Asegúrate de que la columna de masa esté en el dataframe
+# Cambia 'masa' por el nombre correcto de la columna de masa en tu dataframe si es diferente
+ggplot(data = meteoritos, 
+       mapping = aes(x = CONTINENTE, y = mass, color = CONTINENTE, size = mass)) +
+    geom_point(alpha = 0.7) +  # Gráfico de puntos con transparencia
+    labs(
+        title = "Distribución de meteoritos por continente y masa",
+        x = "Continente",
+        y = "Masa (kg)",  # Cambia esto si la masa no está en kilogramos
+        color = "Continente",
+        size = "Masa (kg)"
+    ) +
+    theme_minimal() +  # Opcional: tema minimalista para el gráfico
+    scale_size_continuous(range = c(1, 10))  # Ajusta el rango del tamaño de los puntos
+
+
+```
+
+**Discusión:** *Podemos llegar a la conclusion que. EL dataset tiene muchos valores null. De lo valores posibles de analisis se desprende que Europa y america tienen la mayor frecuencia de caida de meteritos. En particular Europa recibe mayor cantidad de meteoritos pero America recibe a los que tienen mayor masa. Por lo que un cientifico dedicado a la bsuqueda de tales objetos celestiales deberia comenzar por america pues hya buena frecuencia de caida y mas posibilidades de toparse con uno de mayor masa*
+
+### **Parte 2**
+
+**Pregunta:** *Tu pregunta va a aquí*
+
+**Introducción:** *Tu introducción va aqui*
+
+**Enfoque:** *Tu forma de resolución va aquí*
+
+**Analisis:**
+
+```{r }
+# Tu código de R va aquí
+```
+
+```{r }
+# Tu código de R va aquí
+```
+
+**Discusión:** *Tu discusión de los resultados va aquí.*

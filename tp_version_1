@@ -28,14 +28,14 @@ La base de datos `meteoritos` contiene información de impactos de meteoritos y 
 **Analisis:**
 
 ```{r}
-# Inicializar contador de NA
+   
+   # Inicializar contador de NA
 na_count <- 0
 
 # Función clasificar_continente con conteo de NA
 clasificar_continente <- function(lat, long) {
-  # Verificar si hay valores NA
   if (is.na(lat) || is.na(long)) {
-    na_count <<- na_count + 1  # Incrementar contador global de NA
+    na_count <<- na_count + 1
     return(NA)
   }
   
@@ -51,7 +51,7 @@ clasificar_continente <- function(lat, long) {
   } else if (lat >= -35 & lat <= -10 & long >= -20 & long <= 55) {
     return("África")
   } else {
-    na_count <<- na_count + 1  # Incrementar contador global de NA si no coincide
+    na_count <<- na_count + 1
     return(NA)
   }
 }
@@ -60,39 +60,27 @@ clasificar_continente <- function(lat, long) {
 meteoritos <- meteoritos %>%
   mutate(CONTINENTE = mapply(clasificar_continente, lat, long))
 
-# Imprimir el número de NA
-na_count
-
-
-```
-
-```{r}
-   library(ggplot2)
-library(dplyr)
-
-# Filtramos los NA en CONTINENTE y graficamos la frecuencia
-meteoritos %>%
+# Contar la cantidad de meteoritos por continente, omitiendo los NA
+conteo_meteoritos <- meteoritos %>%
   filter(!is.na(CONTINENTE)) %>%
-  ggplot(aes(x = CONTINENTE, fill = CONTINENTE)) +
-  geom_bar(alpha = 0.5) +  # Gráfico de barras
-  labs(
-    title = "Distribución de meteoritos por continente",
-    x = "Continente",
-    y = "Frecuencia"
-  ) +
-  geom_text(stat = 'count', aes(label = ..count..), 
-            position = position_stack(vjust = 0.5), 
-            color = "black", size = 5) +  # Agregamos texto con la cantidad
-  scale_y_continuous(breaks = seq(0, max(table(meteoritos$CONTINENTE, useNA = "no")), by = 1000)) +
-  theme_minimal()  # Opcional: Cambiar el tema para una mejor apariencia
+  group_by(CONTINENTE) %>%
+  summarise(cantidad = n())
 
-
-
+# Crear el gráfico con geom_bar para un gráfico de barras
+ggplot(data = conteo_meteoritos) +
+  geom_bar(aes(x = CONTINENTE, y = cantidad, fill = CONTINENTE), stat = "identity") +
+  geom_text(aes(x = CONTINENTE, y = cantidad, label = cantidad), vjust = -0.5, color = "black", size = 3.5) +
+  labs(title = "Cantidad de meteoritos caídos por continente",
+       x = "Continente",
+       y = "Cantidad de meteoritos",
+       fill = "Continente") +
+  theme_minimal()
 ```
+
 
 ```{r}
    library(ggplot2)
-library(dplyr)
+   library(dplyr)
 
 # Asegúrate de que la columna de masa esté en el dataframe
 # Cambia 'masa' por el nombre correcto de la columna de masa en tu dataframe si es diferente
@@ -108,7 +96,6 @@ ggplot(data = meteoritos,
     ) +
     theme_minimal() +  # Opcional: tema minimalista para el gráfico
     scale_size_continuous(range = c(1, 10))  # Ajusta el rango del tamaño de los puntos
-
 
 ```
 

@@ -57,11 +57,12 @@ clasificar_continente <- function(lat, long) {
 meteoritos <-meteoritos %>%
   mutate(CONTINENTE = mapply(clasificar_continente, lat, long))
 
-  #contar la cantidad de meteritos por CONTINENTE
+ # Contar la cantidad de meteoritos por CONTINENTE
 conteo_meteoritos <- meteoritos %>%
-  filter(!is.na(CONTINENTE)) %>%
+  dplyr::filter(!is.na(CONTINENTE)) %>%
   group_by(CONTINENTE) %>%
   summarise(cantidad = n())
+
 
   #creamos el grafico de barras
 ggplot(conteo_meteoritos, aes(x= fct_reorder(CONTINENTE,cantidad), y= cantidad, fill= CONTINENTE)) +
@@ -92,18 +93,43 @@ ggplot(data= meteoritos,
 
 **Pregunta:** *¿Podriamos establecer alguna relacion entre la masa y alguna de las coordenadas del impacto?*
 
-**Introducción:** *Tu introducción va aqui*
+**Introducción:** *Para responder la segunda pregunta tenemos que analizar donde han caido los meteoritos mas grades y que ocurre en ese contiene respecto a su topografia*
 
-**Enfoque:** *ACA PODRIAMOS USAR UN GRAFICO DE DENSIDAD PARA RELACIONAR CON EL CONTIENNTE AMERICANO, LOS CRATERES MAS GRANDES SE ENCUENTRAN EN ESE AMERICA DEL NORTE. TAMBIEN USAR UN MAPA*
+**Enfoque:** *Vamos a utilizar una combinacion de graficos para vizualizar que contiente tiene mas meteoritos alejados de su mediana, asimismo ese calculo nos muestra el peso de los que estan en la zona outlier.*
 
-**Analisis:**
+**Analisis:***De los graficos se desprende que han caido mas meteoritos pesados en el continente AMERICANO*
 
-```{r }
-# Tu código de R va aquí
+```{r}
+   library(patchwork)
+
+
+
+# Gráfico 2: Boxplot de masa de meteoritos por continente
+g2 <- ggplot(meteoritos) +
+  geom_boxplot(aes(x = CONTINENTE, y = mass, fill = CONTINENTE)) +
+  labs(title = "Distribución de la masa de meteoritos por continente") +
+  theme_minimal()
+
+# Gráfico 3: Barra de cantidad de meteoritos por continente
+g3 <- ggplot(conteo_meteoritos) +
+  geom_bar(aes(x = CONTINENTE, y = cantidad, fill = CONTINENTE), stat = "identity") +
+  labs(title = "Cantidad de meteoritos por continente") +
+  theme_minimal()
+
+# Combinación de gráficos
+( g2) / g3 +
+  plot_annotation(
+    tag_levels = "a",
+    title = "Análisis de Meteoritos",
+    subtitle = "Distribución geográfica y masa de meteoritos",
+    caption = "Fuente: NASA"
+  )
+
+
 ```
 
 ```{r }
 # Tu código de R va aquí
 ```
 
-**Discusión:** *Tu discusión de los resultados va aquí.*
+**Discusión:** *En funcion de los resultados obtenidos podemos conlcuir que los meteotitos mas grandes han caido en las latitudes y longitudes correspondientes al continente AMERICANO. Y tiene cierta logica puesto que la evidencia cientifica demuestra que el cataclismo que extinguio a los dinosaurios cayo en el continente AMERICANO*

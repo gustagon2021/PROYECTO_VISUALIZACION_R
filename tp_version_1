@@ -26,7 +26,7 @@ La base de datos `meteoritos` contiene información de impactos de meteoritos y 
 
 **Introducción:** *La base de datos a utilizar a recabado informacion de diferentes meteriotos a lo largo de los años. En esencia se podrá determinar la distribucion geografica a partir de las columnas latitud longitud o bien a partir de la columna geolocalizacion.* *Naturalmente que para determinar donde han caido los meteoritos mas pesados nos ayudaremos de la columna mass.*
 
-**Enfoque:** *Como desconociamos el estado del dataset y a los fines de evitar los valores null en la columnas lat y long, se procedio a clasificar a que continentes pertencian. Ello mediante una funcion clasficar continente que conforme la lat y long leida determinaba a que contiente pertencia dicho punto geografico. Posterior a ello, se creo una columna CONTINENTE la cual se utilo en un grafico geom_bar para graficar la catidad de meteoritos caidos por contintente, respondiendo al primer interrogante respecto de la distribucion geografica. *
+**Enfoque:** *Como desconociamos el estado del dataset y a los fines de evitar los valores null en la columnas lat y long, se procedio a clasificar a que continentes pertencian. Ello mediante una funcion clasificar continente que conforme la lat y long leida determinaba a que contiente pertenecia dicho punto geografico. Posterior a ello, se creo una columna CONTINENTE la cual se utilo en un grafico geom_bar para graficar la catidad de meteoritos caidos por contintente, respondiendo al primer interrogante respecto de la distribucion geografica. *
 
 **Analisis:*El grafico de barras se utiliza para mostrar la distribucion. Intuitivamente se puede apreciar que el continente mas afectado por los meteritos es Europa. Habiendo dicho esto, con solo mirar el grafico, nos da la pauta de que tomamos la opcion correcta, al diseñar el grafico de barras, ordenadolo por cantidad de meteoritos por continente.* *De manera similar pasa con el grafico de puntos, el tamaño de los puntos determina su masa y los colores nos indican el continente. Sin pasar por el dataset podemos ver como America a recibido los meteoritos mas grandes, mas alla de que Europa haya tenido la caida de meteoritos grandes, en algunas ocasiones**
 
@@ -76,7 +76,7 @@ ggplot(conteo_meteoritos, aes(x= fct_reorder(CONTINENTE,cantidad), y= cantidad, 
 ggplot(data= meteoritos,
        mapping = aes(x=CONTINENTE , y = mass, color = CONTINENTE, size = mass))+
   geom_point(alpha = 0.7) + labs(
-    title = "Distribucion por continente y masa o peso",
+    title = "Distribucion por continente y masa",
     x= "COntinente",
     y= "Masa",
     color = "Continente",
@@ -87,17 +87,17 @@ ggplot(data= meteoritos,
 ```
 
 
-**Discusión:** *Nos permitimos concluir que la distribucion geografica es totalmente dispar. Asimismo la cantidad de meteroritos caidos por zona tampoco esta relacionada con el peso de los mismo. Puede y de hecho hay cierta aleatoriedad en la ocurrencia de estos eventos, aun dificiles de predecir con exactitud.*
+**Discusión:** *Nos permitimos concluir que la distribucion geografica es totalmente dispar. Asimismo, la cantidad de meteroritos caidos por zona tampoco esta relacionada con el peso de los mismos. Puede y de hecho hay cierta aleatoriedad en la ocurrencia de estos eventos, aun dificiles de predecir con exactitud.*
 
 ### **Parte 2**
 
 **Pregunta:** *¿Podriamos establecer alguna relacion entre la masa y alguna de las coordenadas del impacto?*
 
-**Introducción:** *Para responder la segunda pregunta tenemos que analizar donde han caido los meteoritos mas grades y que ocurre en ese contiene respecto a su topografia*
+**Introducción:** *Para responder la segunda pregunta tenemos que analizar donde han caido los meteoritos mas grandes y que ocurre en ese contiene respecto a su topografia*
 
-**Enfoque:** *Vamos a utilizar una combinacion de graficos para vizualizar que contiente tiene mas meteoritos alejados de su mediana, asimismo ese calculo nos muestra el peso de los que estan en la zona outlier.*
+**Enfoque:** *Vamos a utilizar una combinacion de graficos para responder nuestro interrogante. Un grafico para saber que contiente tiene mas meteritos por encima de su mediana (BOX PLOT) otra grafico para saber la cantidad de meteoritos caidos por continente(GEOM_BAR) y otro para saber el peso total de meteoritos caidos por continente (GEOM_LINE).*
 
-**Analisis:***De los graficos se desprende que han caido mas meteoritos pesados en el continente AMERICANO*
+**Analisis:***De los graficos se desprende que han caido mas meteoritos pesados en el continente AMERICANO, tambien podemos decir que en EUROPA tenemos mas meteritos caidos, pero los meteoritos en zona outlier son menos que en AMERICA.*
 
 ```{r}
    library(patchwork)
@@ -129,7 +129,36 @@ g3 <- ggplot(conteo_meteoritos) +
 ```
 
 ```{r }
-# Tu código de R va aquí
+   
+resumen_meteoritos <- meteoritos %>%
+  dplyr::filter(!is.na(CONTINENTE)) %>%
+  group_by(CONTINENTE) %>% #usamos group_by para agrupar
+  summarise(               #sumamos peso por continente
+    cant_total = n(),                # Total de meteoritos por continente
+    peso_total = sum(mass, na.rm = TRUE) # Peso total de los meteoritos por continente
+  )
+
+
+print(resumen_meteoritos) # vemos los resultados por pantalla
+
+
 ```
+```{r}
+   
+library(ggplot2)
+
+ggplot(resumen_meteoritos, aes(x = CONTINENTE, y = peso_total, group = 1)) +
+  geom_line(color = "blue") +
+  geom_point(size = 3, color = "red") +
+  geom_text(aes(label = cant_total), hjust = -0.3, vjust = -0.5, color = "black") + # Etiquetas de cantidad
+  labs(title = "Peso total de meteoritos caídos por continente",
+       x = "Continente",
+       y = "Masa de meteoritos") +
+  theme_minimal()
+
+
+```
+
+
 
 **Discusión:** *En funcion de los resultados obtenidos podemos conlcuir que los meteotitos mas grandes han caido en las latitudes y longitudes correspondientes al continente AMERICANO. Y tiene cierta logica puesto que la evidencia cientifica demuestra que el cataclismo que extinguio a los dinosaurios cayo en el continente AMERICANO*

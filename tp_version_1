@@ -1,5 +1,6 @@
 ---
 title: "Trabajo Práctico Integrador"
+author: "Gustavo Enrique Gonzalez, Agustina del castillo, Lorenzo Gaston"
 output:
   html_document: default
   pdf_document: default
@@ -95,37 +96,15 @@ ggplot(data= meteoritos,
 
 **Introducción:** *Para responder la segunda pregunta tenemos que analizar donde han caido los meteoritos mas grandes y que ocurre en ese contiene respecto a su topografia*
 
-**Enfoque:** *Vamos a utilizar una combinacion de graficos para responder nuestro interrogante. Un grafico para saber que contiente tiene mas meteritos por encima de su mediana (BOX PLOT) otra grafico para saber la cantidad de meteoritos caidos por continente(GEOM_BAR) y otro para saber el peso total de meteoritos caidos por continente (GEOM_LINE).*
+**Enfoque:** *Vamos a utilizar una combinacion de graficos para responder nuestro interrogante. Un grafico para saber que contiente tiene mas meteritos por encima de su mediana (BOX PLOT) y otro para saber el peso total de meteoritos caidos por continente, con el agregado de que nos dara el numero de meteoritos caidos por continente.  (GEOM_LINE).*
 
 **Analisis:***De los graficos se desprende que han caido mas meteoritos pesados en el continente AMERICANO, tambien podemos decir que en EUROPA tenemos mas meteritos caidos, pero los meteoritos en zona outlier son menos que en AMERICA.*
 
 ```{r}
-   library(patchwork)
-
-
-
-# Gráfico 2: Boxplot de masa de meteoritos por continente
-g2 <- ggplot(meteoritos) +
+# Gráfico : Boxplot de masa de meteoritos por continente
+  ggplot(meteoritos) +
   geom_boxplot(aes(x = CONTINENTE, y = mass, fill = CONTINENTE)) +
-  labs(title = "Distribución de la masa de meteoritos por continente") +
   theme_minimal()
-
-# Gráfico 3: Barra de cantidad de meteoritos por continente
-g3 <- ggplot(conteo_meteoritos) +
-  geom_bar(aes(x = CONTINENTE, y = cantidad, fill = CONTINENTE), stat = "identity") +
-  labs(title = "Cantidad de meteoritos por continente") +
-  theme_minimal()
-
-# Combinación de gráficos
-( g2) / g3 +
-  plot_annotation(
-    tag_levels = "a",
-    title = "Análisis de Meteoritos",
-    subtitle = "Distribución geográfica y masa de meteoritos",
-    caption = "Fuente: NASA"
-  )
-
-
 ```
 
 ```{r }
